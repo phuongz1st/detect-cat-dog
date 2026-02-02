@@ -8,11 +8,11 @@ from PIL import Image
 # 1. Cấu hình trang Web
 st.set_page_config(page_title="Cat vs Dog Detector", page_icon="🐾")
 
-st.title("🐶 Cat vs Dog Detector 🐱")
+st.title(" Cat vs Dog Detector ")
 st.write("Project Web Deploy - Detect Cat & Dog")
-st.write("Sinh viên thực hiện: [Tên của bạn]")
+st.write("Nhóm 6")
 
-# 2. Load Model (Sử dụng Cache để không load lại mỗi lần f5)
+# 2. Load Model
 @st.cache_resource
 def load_model():
     # Sử dụng MobileNetV2 đã train sẵn trên ImageNet (nhanh, nhẹ, chính xác cao)
@@ -72,10 +72,10 @@ if uploaded_file is not None:
             # Hiển thị kết quả
             st.divider()
             if is_dog:
-                st.success(f"Kết quả: ĐÂY LÀ CHÓ (DOG) 🐶 - ({top_label})")
+                st.success(f"Kết quả: ĐÂY LÀ CHÓ (DOG)  - ({top_label})")
                 st.progress(float(prob))
             elif is_cat:
-                st.success(f"Kết quả: ĐÂY LÀ MÈO (CAT) 🐱 - ({top_label})")
+                st.success(f"Kết quả: ĐÂY LÀ MÈO (CAT)  - ({top_label})")
                 st.progress(float(prob))
             else:
                 # Nếu không phải chó/mèo (trường hợp user up ảnh xe cộ, người...)
