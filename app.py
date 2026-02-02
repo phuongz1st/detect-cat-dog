@@ -57,8 +57,17 @@ if uploaded_file is not None:
 
             # Danh sách từ khóa
             # Lưu ý: ImageNet chia rất kỹ (VD: 'tabby', 'tiger_cat'...) nên ta check string
-            dog_keywords = ['dog', 'terrier', 'retriever', 'spaniel', 'shepherd', 'hound', 'boxer', 'bulldog', 'dalmatian', 'husky', 'corgi', 'pug']
-            cat_keywords = ['cat', 'tabby', 'tiger', 'siamese', 'persian', 'lynx', 'leopard', 'kitten']
+           # Danh sách từ khóa Mèo (giữ nguyên hoặc bổ sung thêm)
+            cat_keywords = ['cat', 'tabby', 'tiger', 'siamese', 'persian', 'lynx', 'leopard', 'kitten', 'cougar', 'lion', 'panther', 'cheetah', 'jaguar']
+
+            # Danh sách từ khóa Chó (Cập nhật đầy đủ hơn)
+            dog_keywords = [
+                'dog', 'terrier', 'retriever', 'spaniel', 'shepherd', 'hound', 'boxer', 'bulldog', 'dalmatian', 
+                'husky', 'corgi', 'pug', 'pomeranian', 'chihuahua', 'beagle', 'collie', 'poodle', 'rottweiler', 
+                'doberman', 'shiba', 'akita', 'malamute', 'samoyed', 'chow', 'dane', 'mastiff', 'bernese', 
+                'newfoundland', 'schnauzer', 'pinscher', 'sheepdog', 'pointer', 'vizsla', 'setter', 'maltese', 
+                'papillon', 'pekingese', 'spitz', 'whippet', 'basenji', 'borzoi', 'greyhound', 'bloodhound', 'wolf'
+            ]
 
             # Kiểm tra label cao nhất
             check_str = top_label.lower()
