@@ -10,7 +10,7 @@ st.set_page_config(page_title="Cat vs Dog Detector", page_icon="🐾")
 
 st.title(" Cat vs Dog Detector ")
 st.write("Project Web Deploy - Detect Cat & Dog")
-st.write("Nhóm 6")
+st.write("Nguyễn Đông Phương-2286400025")
 
 # 2. Load Model
 @st.cache_resource
