@@ -1,18 +1,18 @@
 import streamlit as st
 import tensorflow as tf
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
+# Đổi import từ mobilenet_v2 sang resnet50
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 import time
 
-# 1. Page Configuration (Must be the first Streamlit command)
+# 1. Cấu hình trang (Bắt buộc phải ở dòng đầu tiên)
 st.set_page_config(page_title="AI Pet Detector", page_icon="✨", layout="centered")
 
-# 2. Inject Custom CSS for modern redesign (2025 AI/SaaS style)
+# 2. Inject Custom CSS (Cập nhật thêm màu Warning cho độ tin cậy thấp)
 custom_css = """
 <style>
-    /* Global Styles */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
@@ -20,12 +20,10 @@ custom_css = """
         -webkit-font-smoothing: antialiased;
     }
 
-    /* Modern Gradient Background */
     .stApp {
         background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
     }
 
-    /* Centered Card Layout */
     .block-container {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -37,7 +35,6 @@ custom_css = """
         margin-bottom: 3rem;
     }
 
-    /* Typography */
     h1 {
         background: -webkit-linear-gradient(45deg, #667eea, #764ba2);
         -webkit-background-clip: text;
@@ -64,7 +61,6 @@ custom_css = """
         margin-bottom: 3rem;
     }
 
-    /* Modern File Uploader with Hover Effects */
     [data-testid="stFileUploadDropzone"] {
         border: 2px dashed #cbd5e1 !important;
         border-radius: 16px !important;
@@ -77,42 +73,12 @@ custom_css = """
         background-color: #eff6ff;
         transform: translateY(-2px);
     }
-    
-    /* Styled Upload Button inside uploader */
-    [data-testid="stFileUploadDropzone"] button {
-        background: white;
-        color: #1e293b;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        font-weight: 500;
-        padding: 8px 16px;
-        transition: all 0.3s ease;
-    }
-    [data-testid="stFileUploadDropzone"] button:hover {
-        background: #f1f5f9;
-        color: #667eea;
-        border-color: #667eea;
-    }
 
-    /* Modern Progress Bar */
     .stProgress > div > div > div {
         background-color: #667eea;
         border-radius: 10px;
     }
-    
-    /* Pre-Prediction Loading Animation */
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-    .loading-text {
-        animation: pulse 1.5s infinite;
-        font-weight: 500;
-        color: #764ba2;
-        text-align: center;
-    }
 
-    /* Modern Primary Button with Hover Effects */
     .stButton > button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -132,7 +98,6 @@ custom_css = """
         color: white;
     }
 
-    /* Styled Image Preview */
     [data-testid="stImage"] img {
         border-radius: 16px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -143,7 +108,6 @@ custom_css = """
         transform: scale(1.02);
     }
 
-    /* Modern Result Badges with Category Styling and Bounce Animation */
     @keyframes fadeInBounce {
         0% { opacity: 0; transform: scale(0.8) translateY(20px); }
         100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -153,7 +117,7 @@ custom_css = """
         display: block;
         padding: 20px 30px;
         border-radius: 16px;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 700;
         text-align: center;
         margin-top: 3rem;
@@ -163,12 +127,12 @@ custom_css = """
         color: white;
     }
     
-    /* Specific styling for Cat, Dog, and Unknown results */
     .badge-cat { background: linear-gradient(135deg, #f06292 0%, #c2185b 100%); }
     .badge-dog { background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%); }
     .badge-unknown { background: linear-gradient(135deg, #78909c 0%, #455a64 100%); }
+    /* Thêm CSS cho badge cảnh báo độ tin cậy thấp */
+    .badge-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-    /* Prediction details list below the main badge */
     .prediction-details-title {
         font-weight: 600;
         font-size: 18px;
@@ -207,57 +171,49 @@ custom_css = """
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-# 3. Header UI with specific classes
+# 3. Header UI
 st.markdown("<h1>🐾 AI Pet Detector</h1>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>Project Web Deploy • Detect Cat & Dog</div>", unsafe_allow_html=True)
 st.markdown("<p class='author-text'>By Nguyễn Đông Phương - 2286400025</p>", unsafe_allow_html=True)
 
-# 4. Load AI Model with spinner
+# 4. Load AI Model (Đã đổi sang ResNet50)
 @st.cache_resource
 def load_model():
-    # Use MobileNetV2 pre-trained on ImageNet
-    model = MobileNetV2(weights='imagenet')
+    model = ResNet50(weights='imagenet')
     return model
 
-with st.spinner('✨ Initializing AI Pet Model... this may take a moment.'):
+with st.spinner('✨ Initializing ResNet50 Model... This might take a moment.'):
     model = load_model()
 
-# 5. Modern File Upload Section
+# 5. Giao diện Upload
 uploaded_file = st.file_uploader("Upload or drag & drop a clear photo of your pet", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
-    # Get image data and convert to standard RGB for predictability
     image_data = Image.open(uploaded_file).convert('RGB')
-    
-    # Stylized Image Preview within the centered card
     st.image(image_data, use_container_width=True)
     
-    # Modernized Prediction Button with hover effect
     if st.button('✨ Phân Tích Hình Ảnh'):
-        # Smooth simulated loading animation
-        progress_text = "<p class='loading-text'>Scanning visual features...</p>"
-        my_bar = st.progress(0)
+        # Thanh loading giả lập mượt mà (đã sửa lỗi text)
+        progress_text = "✨ Đang phân tích các đặc điểm hình ảnh..."
+        my_bar = st.progress(0, text=progress_text)
         for percent_complete in range(100):
             time.sleep(0.01)
             my_bar.progress(percent_complete + 1, text=progress_text)
-        time.sleep(0.2)
         
-        # 4. Image Preprocessing for MobileNetV2
-        # Resize to 224x224
+        # Ẩn thanh loading đi cho gọn UI
+        time.sleep(0.2)
+        my_bar.empty()
+        
+        # Tiền xử lý cho ResNet50
         img = image_data.resize((224, 224))
-        # Convert to array
         x = image.img_to_array(img)
-        # Add batch dimension (1, 224, 224, 3)
         x = np.expand_dims(x, axis=0)
-        # Preprocess (normalize pixels)
         x = preprocess_input(x)
 
-        # 5. Prediction
+        # Dự đoán
         preds = model.predict(x)
-        # Get Top 3 predictions and probabilities
         decoded_preds = decode_predictions(preds, top=3)[0]
         
-        # Define comprehensive keyword lists from original code and more
         cat_keywords = ['cat', 'tabby', 'tiger', 'siamese', 'persian', 'lynx', 'leopard', 'kitten', 'cougar', 'lion', 'panther', 'cheetah', 'jaguar']
         dog_keywords = [
             'dog', 'terrier', 'retriever', 'spaniel', 'shepherd', 'hound', 'boxer', 'bulldog', 'dalmatian', 
@@ -267,11 +223,9 @@ if uploaded_file is not None:
             'papillon', 'pekingese', 'spitz', 'whippet', 'basenji', 'borzoi', 'greyhound', 'bloodhound', 'wolf'
         ]
 
-        # Process and clean all top 3 predictions
         processed_preds = []
         for pred_raw in decoded_preds:
             _, label_raw, prob_raw = pred_raw
-            # Remove underscores for a clean, title-case display
             label_clean = label_raw.replace('_', ' ').title()
             
             category = "Other"
@@ -282,28 +236,34 @@ if uploaded_file is not None:
             
             processed_preds.append((label_clean, category, prob_raw))
 
-        # Get top result for display
         top_label, top_cat, top_prob = processed_preds[0]
         
-        # Determine main badge styling
-        badge_class = "badge-unknown"
-        emoji = "❓"
-        if top_cat == "Cat":
-            emoji = "🐱"
-            badge_class = "badge-cat"
-        elif top_cat == "Dog":
-            emoji = "🐶"
-            badge_class = "badge-dog"
+        # LOGIC ĐỘ TIN CẬY (Ngưỡng 50%)
+        if top_prob < 0.50:
+            badge_class = "badge-warning"
+            emoji = "🤔"
+            display_text = f"Hơi khó đoán... Có thể là {top_cat} ({top_label})"
+        else:
+            if top_cat == "Cat":
+                emoji = "🐱"
+                badge_class = "badge-cat"
+            elif top_cat == "Dog":
+                emoji = "🐶"
+                badge_class = "badge-dog"
+            else:
+                emoji = "❓"
+                badge_class = "badge-unknown"
+            display_text = f"{top_cat} - {top_label}"
 
-        # Display stylized main result badge with bounce animation
-        st.markdown(f'<div class="result-badge {badge_class}">{emoji} {top_cat} - {top_label}</div>', unsafe_allow_html=True)
+        # Hiển thị Badge kết quả chính
+        st.markdown(f'<div class="result-badge {badge_class}">{emoji} {display_text}</div>', unsafe_allow_html=True)
         
-        # Display smooth confidence progress bar
-        st.progress(float(top_prob), text=f"Confidence: {top_prob:.2%}")
+        # Hiển thị độ tin cậy
+        st.progress(float(top_prob), text=f"Độ tin cậy (Confidence): {top_prob:.2%}")
 
-        # Display stylized list of Top 2 & 3 predictions for better insight (improves 'accuracy' through transparency)
+        # Hiển thị các dự đoán khác
         if len(processed_preds) > 1:
-            st.markdown("<p class='prediction-details-title'>Other Predictions for Context:</p>", unsafe_allow_html=True)
+            st.markdown("<p class='prediction-details-title'>Các dự đoán khác có thể xảy ra:</p>", unsafe_allow_html=True)
             st.markdown("<div class='other-predictions-list'>", unsafe_allow_html=True)
             for label, cat, prob in processed_preds[1:]:
                 other_emoji = "🐱" if cat == "Cat" else "🐶" if cat == "Dog" else "❓"
