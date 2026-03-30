@@ -319,7 +319,7 @@ st.markdown(
     """
     <div class="footer">
         Project Web Deploy • Coded with Streamlit & ResNet50<br>
-        By Nguyễn Đông Phương - 2286400025
+        Người thực hiện: <b>Nhóm Nguyễn Đông Phương, Trần Tuấn Kiệt, Trần Trọng Thành</b>
     </div>
     """,
     unsafe_allow_html=True
