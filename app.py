@@ -27,7 +27,7 @@ uploaded_file = st.file_uploader("Chọn ảnh chó hoặc mèo...", type=["jpg"
 
 if uploaded_file is not None:
     # Hiển thị ảnh user upload
-    image_data = Image.open(uploaded_file)
+    image_data = Image.open(uploaded_file).convert('RGB')
     st.image(image_data, caption='Ảnh đã upload', use_container_width=True)
     
     # Nút bấm dự đoán
