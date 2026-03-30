@@ -81,10 +81,10 @@ if uploaded_file is not None:
             # Hiển thị kết quả
             st.divider()
             if is_dog:
-                st.success(f"Kết quả: ĐÂY LÀ CHÓ (DOG)  - ({top_label})")
+                st.success(f"Kết quả: ĐÂY LÀ CHÓ   - GIỐNG ({top_label})")
                 st.progress(float(prob))
             elif is_cat:
-                st.success(f"Kết quả: ĐÂY LÀ MÈO (CAT)  - ({top_label})")
+                st.success(f"Kết quả: ĐÂY LÀ MÈO   - GIỐNG ({top_label})")
                 st.progress(float(prob))
             else:
                 # Nếu không phải chó/mèo (trường hợp user up ảnh xe cộ, người...)
